@@ -1,6 +1,6 @@
 # CMIDE
 
-CMIDE is a Windows code editor for [Code Market](https://store.steampowered.com/). Edit game scripts while your world is running, with completion and documentation that reflect your progress in the game.
+CMIDE is a Windows code editor for [Code Market](https://store.steampowered.com/app/5451260/Code_Market/). Edit game scripts while your world is running, with completion and documentation that reflect your progress in the game.
 
 Prefer VS Code? Try [Code Market Live for VS Code](https://github.com/CodeMarketModding/CMIDE-VSCode), which uses the same bridge.
 
