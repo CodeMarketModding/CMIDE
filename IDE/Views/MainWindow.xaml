@@ -1,0 +1,40 @@
+<Window x:Class="CodeMarket.IDE.Views.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="clr-namespace:CodeMarket.IDE.ViewModels" xmlns:views="clr-namespace:CodeMarket.IDE.Views" xmlns:avalon="http://icsharpcode.net/sharpdevelop/avalonedit" Title="Code Market IDE" Width="1500" Height="850" MinWidth="1050" MinHeight="500" WindowStartupLocation="CenterScreen">
+  <Window.Resources>
+    <HierarchicalDataTemplate DataType="{x:Type vm:ExplorerNode}" ItemsSource="{Binding Children}"><StackPanel Orientation="Horizontal"><TextBlock Text="{Binding Icon}" Foreground="#7DAAC8" Width="24" FontSize="11"/><TextBlock Text="{Binding Name}"/></StackPanel></HierarchicalDataTemplate>
+    <DataTemplate x:Key="CompletionTemplate"><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Text="{Binding Label}" Foreground="#E8E8E8"/><TextBlock Grid.Column="1" Text="{Binding Detail}" Foreground="#A0A0A0" Margin="24,0,0,0"/></Grid></DataTemplate>
+  </Window.Resources>
+  <DockPanel>
+    <Border DockPanel.Dock="Top" Background="#323233" Padding="12,8"><DockPanel><TextBlock Text="CODE MARKET  /  IDE" FontSize="13" FontWeight="SemiBold" Foreground="#EEEEEE" VerticalAlignment="Center"/><StackPanel Orientation="Horizontal" HorizontalAlignment="Right"><TextBlock Text="Language" VerticalAlignment="Center" Margin="0,0,6,0"/><ComboBox x:Name="LanguageSelector" Width="100" Margin="0,0,10,0" SelectionChanged="LanguageChanged" ToolTip="Game scripts use the world's language; other profiles are local drafts"><ComboBoxItem Content="C#" Tag="csharp"/><ComboBoxItem Content="Java" Tag="java"/></ComboBox><Button Content="New Local" Click="NewLocalClick" Margin="0,0,5,0"/><Button Content="Open Local" Click="OpenLocalClick" Margin="0,0,5,0"/><Button Content="Save Local" Click="SaveLocalClick" Margin="0,0,8,0"/><Button Content="Connect / Refresh" Click="ConnectClick" Margin="0,0,5,0"/><Button Content="Reload Script" Click="ReloadClick"/></StackPanel></DockPanel></Border>
+    <Border DockPanel.Dock="Bottom" Background="#007ACC" Padding="10,4"><DockPanel><TextBlock x:Name="ConnectionText" DockPanel.Dock="Right" HorizontalAlignment="Right" Foreground="White" Text="Disconnected"/><TextBlock x:Name="StatusText" Text="Connect to a running world" Foreground="White"/></DockPanel></Border>
+    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="52"/><ColumnDefinition Width="245" MinWidth="150"/><ColumnDefinition Width="5"/><ColumnDefinition Width="*"/><ColumnDefinition Width="5"/><ColumnDefinition Width="380" MinWidth="260"/></Grid.ColumnDefinitions>
+      <Border Grid.Column="0" Background="#333333"><StackPanel>
+        <Button x:Name="ExplorerViewButton" Content="▤" ToolTip="Explorer" Click="ShowExplorerClick" FontSize="26" Foreground="White" Background="Transparent" BorderThickness="0" Padding="0" Height="54"/>
+        <Button x:Name="ClassMapViewButton" Content="⌘" ToolTip="Class Map" Click="ShowClassMapClick" FontSize="24" Foreground="#858585" Background="Transparent" BorderThickness="0" Padding="0" Height="50"/>
+      </StackPanel></Border>
+      <Grid Grid.Column="1">
+        <DockPanel x:Name="ExplorerPane" Background="#252526"><TextBlock DockPanel.Dock="Top" Text="EXPLORER" FontSize="11" FontWeight="SemiBold" Margin="16,14,10,14" Foreground="#BBBBBB"/><TextBlock DockPanel.Dock="Top" Text="GAME SCRIPTS" FontWeight="SemiBold" FontSize="11" Margin="12,0,8,8" Foreground="#BBBBBB"/>
+          <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8,0,4,8">
+            <Button ToolTip="New File" AutomationProperties.Name="New File" Click="NewFileClick" Width="36" Height="28" Padding="7,5" Margin="0,0,4,0"><Path Data="M2,1 L10,1 L14,5 L14,15 L2,15 Z M10,1 L10,5 L14,5 M8,7 L8,13 M5,10 L11,10" Stroke="#CCCCCC" StrokeThickness="1.3" Stretch="Uniform"/></Button>
+            <Button ToolTip="New Folder" AutomationProperties.Name="New Folder" Click="NewFolderClick" Width="36" Height="28" Padding="7,5" Margin="0,0,4,0"><Path Data="M1,3 L6,3 L8,5 L15,5 L15,14 L1,14 Z M8,7 L8,12 M5.5,9.5 L10.5,9.5" Stroke="#CCCCCC" StrokeThickness="1.3" Stretch="Uniform"/></Button>
+            <Button ToolTip="Rename" AutomationProperties.Name="Rename" Click="RenameFileClick" Width="36" Height="28" Padding="7,5" Margin="0,0,4,0"><Path Data="M2,12 L3,9 L11,1 L14,4 L6,12 Z M10,2 L13,5 M2,15 L14,15" Stroke="#CCCCCC" StrokeThickness="1.3" Stretch="Uniform"/></Button>
+            <Button ToolTip="Delete" AutomationProperties.Name="Delete" Click="DeleteFileClick" Width="36" Height="28" Padding="7,5"><Path Data="M3,4 L13,4 M6,4 L6,2 L10,2 L10,4 M4,5 L5,14 L11,14 L12,5 M7,7 L7,12 M9,7 L9,12" Stroke="#CCCCCC" StrokeThickness="1.3" Stretch="Uniform"/></Button>
+          </StackPanel><TreeView x:Name="Explorer" Background="#252526" Foreground="#CCCCCC" BorderThickness="0" SelectedItemChanged="ExplorerSelected"/></DockPanel>
+        <views:ClassMapPane x:Name="ClassMap" Visibility="Collapsed"/>
+      </Grid>
+      <GridSplitter Grid.Column="2" Width="5" HorizontalAlignment="Stretch" Background="#333333"/>
+      <DockPanel Grid.Column="3" Background="#1E1E1E">
+        <Border DockPanel.Dock="Top" Background="#252526" BorderBrush="#1E1E1E" BorderThickness="0,0,0,1"><StackPanel Orientation="Horizontal"><Border Background="#1E1E1E" BorderBrush="#007ACC" BorderThickness="0,2,0,0" Padding="14,9"><TextBlock x:Name="TabTitle" Text="Welcome" Foreground="#FFFFFF"/></Border></StackPanel></Border>
+        <TextBlock x:Name="Breadcrumb" DockPanel.Dock="Top" Text="Select a script in Explorer" Foreground="#999999" Margin="15,8,0,6" FontSize="12"/>
+        <Grid>
+          <avalon:TextEditor x:Name="Editor" Background="#1E1E1E" Foreground="#D4D4D4" BorderThickness="0" FontFamily="Consolas" FontSize="14" Padding="5,8,12,12" ShowLineNumbers="True" WordWrap="False" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsEnabled="False" TextChanged="EditorChanged" PreviewKeyDown="EditorKeyDown" PreviewMouseDown="EditorMouseDown"/>
+          <TextBlock x:Name="Welcome" Text="Connect to Code Market, then select a script." Foreground="#777777" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" IsHitTestVisible="False"/>
+          <Popup x:Name="CompletionPopup" PlacementTarget="{Binding ElementName=Editor}" Placement="Relative" StaysOpen="True" AllowsTransparency="True" Focusable="False">
+            <Border Background="#252526" BorderBrush="#454545" BorderThickness="1" Width="430" MaxHeight="300"><DockPanel><TextBlock DockPanel.Dock="Bottom" x:Name="CompletionDocumentation" Foreground="#AAAAAA" FontSize="12" TextWrapping="Wrap" Padding="8" MaxHeight="75"/><ListBox x:Name="CompletionList" Background="#252526" BorderThickness="0" ItemTemplate="{StaticResource CompletionTemplate}" SelectionChanged="CompletionSelectionChanged" MouseDoubleClick="CompletionDoubleClick" MaxHeight="220"/></DockPanel></Border>
+          </Popup>
+        </Grid>
+      </DockPanel>
+      <GridSplitter Grid.Column="4" Width="5" HorizontalAlignment="Stretch" Background="#333333"/>
+      <views:ReferencePane x:Name="Reference" Grid.Column="5"/>
+    </Grid>
+  </DockPanel>
+</Window>

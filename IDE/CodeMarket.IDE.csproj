@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework><UseWPF>true</UseWPF><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><AssemblyName>CodeMarket.IDE</AssemblyName><DefaultItemExcludes>$(DefaultItemExcludes);builds/**</DefaultItemExcludes></PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="AvalonEdit" Version="6.3.1.120" />
+  </ItemGroup>
+  <ItemGroup><Resource Include="Resources/*.xshd" /></ItemGroup>
+  <ItemGroup><Content Include="../SDK/CSharp/*.cs" Link="SDK/CSharp/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest"/><Content Include="../SDK/Java/*.java" Link="SDK/Java/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest"/></ItemGroup>
+</Project>
