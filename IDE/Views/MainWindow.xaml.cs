@@ -39,9 +39,17 @@ public partial class MainWindow : Window
     private bool referenceBusy;
     private int referenceGeneration;
     private string referenceSignature="";
+    private ReferenceHoverRenderer? referenceHover;
     public MainWindow()
     {
         InitializeComponent();
+        referenceHover=new ReferenceHoverRenderer(Editor.TextArea.TextView);
+        Editor.TextArea.TextView.BackgroundRenderers.Add(referenceHover);
+        Editor.MouseMove+=(_,e)=>UpdateReferenceHover(e.GetPosition(Editor));
+        Editor.MouseLeave+=(_,_)=>ClearReferenceHover();
+        PreviewKeyDown+=(_,e)=> { if(e.Key is Key.LeftCtrl or Key.RightCtrl && Editor.IsMouseOver)Dispatcher.BeginInvoke(()=>UpdateReferenceHover(Mouse.GetPosition(Editor))); };
+        PreviewKeyUp+=(_,e)=> { if(e.Key is Key.LeftCtrl or Key.RightCtrl)Dispatcher.BeginInvoke(()=>UpdateReferenceHover(Mouse.GetPosition(Editor))); };
+        Deactivated+=(_,_)=>ClearReferenceHover();
         SelectLanguage("csharp");
         Editor.TextArea.Caret.PositionChanged+=EditorSelectionChanged;timer.Tick+=Tick;timer.Start();
         Editor.TextArea.TextEntering+=EditorTextEntering;
@@ -73,7 +81,7 @@ public partial class MainWindow : Window
             string signature=string.Join("\n",response.ReferenceItems ?? []);
             if(signature==referenceSignature)return;
             var entries=(response.ReferenceItems ?? []).Select(raw=>JsonSerializer.Deserialize<ReferenceItem>(raw)).Where(x=>x is not null).Cast<ReferenceItem>().ToList();
-            referenceSignature=signature;Reference.UpdateIndex(entries);
+            referenceSignature=signature;Reference.UpdateIndex(entries);ClearReferenceHover();
         }
         catch(Exception ex) { if(generation==referenceGeneration)Reference.ShowMessage("Reference unavailable. Restart the game with the updated bridge.\n"+ex.Message); }
         finally { referenceBusy=false; }
@@ -110,6 +118,7 @@ public partial class MainWindow : Window
     private void LanguageChanged(object sender,SelectionChangedEventArgs e)
     {
         if(selectingLanguage || LanguageSelector.SelectedItem is not ComboBoxItem item)return;
+        ClearReferenceHover();
         completionGeneration++;completionRequested=false;HideCompletion();SelectLanguage((string)item.Tag);
         if(localDocument)SetStatus("Local document — not synced to the game.");
         else if(currentPath is not null && language!=bridge.Language)SetStatus("Preview only: this world uses "+bridge.Language+". Use New Local to edit another language.");
@@ -167,6 +176,7 @@ public partial class MainWindow : Window
     {
         if (busy) { SetStatus("Bridge is busy; try again shortly.");return; }
         if (Dirty && MessageBox.Show(this,"Discard unsynced edits and reconnect?","Unsynced changes",MessageBoxButton.YesNo,MessageBoxImage.Warning)!=MessageBoxResult.Yes)return;
+        ClearReferenceHover();
         busy=true;SetStatus("Connecting to game…");
         try
         {
@@ -333,6 +343,7 @@ public partial class MainWindow : Window
     }
     private void EditorChanged(object? sender,EventArgs e)
     {
+        if(referenceHover is not null)ClearReferenceHover();
         if(ClassMap is not null) { classMapTimer.Stop();classMapTimer.Start(); }
         if(loading || (!localDocument && currentPath is null))return;
         lastEdit=DateTime.UtcNow;completionRequested=true;forceCompletion=false;completionAt=lastEdit.AddMilliseconds(150);completionGeneration++;HideCompletion();SetStatus("Editing…");
@@ -464,15 +475,38 @@ public partial class MainWindow : Window
         if(e.ChangedButton!=MouseButton.Left || !Keyboard.Modifiers.HasFlag(ModifierKeys.Control))return;
         if(!bridge.Connected) { SetStatus("Connect to a game world to use the reference.");e.Handled=true;return; }
         if(language!=bridge.Language) { SetStatus("Reference lookup follows the connected world's language.");e.Handled=true;return; }
-        var position=Editor.GetPositionFromPoint(e.GetPosition(Editor));
-        if(position is null)return;
-        if(position.Value.Line<1 || position.Value.Line>Editor.Document.LineCount)return;
+        var target=ReferenceAt(e.GetPosition(Editor));
+        if(target is null)SetStatus("No unlocked in-game reference found for that symbol.");
+        else _=OpenReferenceAsync(target.Id);
+        e.Handled=true;
+    }
+    private ReferenceLookup.Target? ReferenceAt(Point point)
+    {
+        var position=Editor.GetPositionFromPoint(point);
+        if(position is null || position.Value.Line<1 || position.Value.Line>Editor.Document.LineCount)return null;
         var line=Editor.Document.GetLineByNumber(position.Value.Line);
         int offset=Editor.Document.GetOffset(position.Value.Line,Math.Clamp(position.Value.Column,1,line.Length+1));
-        string? id=ReferenceLookup.Find(Editor.Text,offset,Reference.Entries);
-        if(id is null)SetStatus("No unlocked in-game reference found for that symbol.");
-        else _=OpenReferenceAsync(id);
-        e.Handled=true;
+        var target=ReferenceLookup.FindTarget(Editor.Text,offset,Reference.Entries);
+        if(target is null && offset>line.Offset)target=ReferenceLookup.FindTarget(Editor.Text,offset-1,Reference.Entries);
+        var view=Editor.TextArea.TextView;
+        if(target is null || !view.VisualLinesValid)return null;
+        Point local=Editor.TranslatePoint(point,view);
+        var segment=new ICSharpCode.AvalonEdit.Document.TextSegment { StartOffset=target.Start,Length=target.Length };
+        return BackgroundGeometryBuilder.GetRectsForSegment(view,segment,false).Any(rect=>rect.Contains(local)) ? target : null;
+    }
+    private void UpdateReferenceHover(Point point)
+    {
+        if(referenceHover is null || !Editor.IsMouseOver || !Keyboard.Modifiers.HasFlag(ModifierKeys.Control) || !bridge.Connected || language!=bridge.Language)
+        { ClearReferenceHover();return; }
+        var target=ReferenceAt(point);
+        if(target is null) { ClearReferenceHover();return; }
+        referenceHover.Set(target.Start,target.Length);
+        Editor.TextArea.TextView.Cursor=Cursors.Hand;
+    }
+    private void ClearReferenceHover()
+    {
+        referenceHover?.Clear();
+        if(Editor?.TextArea?.TextView is not null)Editor.TextArea.TextView.ClearValue(FrameworkElement.CursorProperty);
     }
     private void EditorSelectionChanged(object? sender,EventArgs e)
     {

@@ -8,13 +8,21 @@ CMIDE is a Windows code editor for [Code Market](https://store.steampowered.com/
 
 Screenshots show an example document and reference entries.
 
+**Upgrade-aware completion**
+
+![Code completion suggestions for robot methods](docs/images/completion.png)
+
+**Reference lookup** — Ctrl-click a supported symbol to open its in-game reference.
+
+![Robot reference opened by Ctrl-clicking a symbol](docs/images/reference-lookup.png)
+
 ## Features
 
 - Live two-way synchronization with the open game project, including protection against conflicting edits.
 - C# and Java syntax highlighting and automatic, upgrade-aware completion. Use **Ctrl+Space** to request suggestions, **Tab** or **Enter** to insert, and **Esc** to dismiss.
 - Automatic brace pairing and indentation when starting a new line inside a block.
 - An Explorer for creating files and folders and renaming or deleting scripts.
-- A searchable reference pane with unlocked in-game guides and API pages. Ctrl-click a supported symbol to open its reference.
+- A searchable reference pane with unlocked in-game guides and API pages. Hold Ctrl over a supported symbol to highlight it, then click to open its reference.
 - A Class Map for the current document, with clickable class and member declarations.
 - Separate C# and Java reference stubs for local drafts. Local completions are not filtered by game upgrades.
 - Local file editing without syncing those files to the game.

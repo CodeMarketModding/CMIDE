@@ -6,6 +6,16 @@ namespace CodeMarket.IDE.Services;
 /// <summary>Resolves source symbols only to reference pages currently open in the game.</summary>
 public static class ReferenceLookup
 {
+    public sealed record Target(string Id, int Start, int Length);
+    public static Target? FindTarget(string code,int offset,IReadOnlyList<ReferenceItem> entries)
+    {
+        if(offset<0 || offset>=code.Length || !Word(code[offset]))return null;
+        string? id=Find(code,offset,entries);if(id is null)return null;
+        int start=offset,end=offset+1;
+        while(start>0 && Word(code[start-1]))start--;
+        while(end<code.Length && Word(code[end]))end++;
+        return new Target(id,start,end-start);
+    }
     private static readonly Dictionary<string,string> Keywords = new(StringComparer.Ordinal)
     {
         ["if"]="lang.if",["else"]="lang.if",["while"]="lang.while",["for"]="lang.for",["foreach"]="lang.for",
