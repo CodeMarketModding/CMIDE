@@ -2,6 +2,8 @@
 
 CMIDE is a Windows code editor for [Code Market](https://store.steampowered.com/). Edit game scripts while your world is running, with completion and documentation that reflect your progress in the game.
 
+Prefer VS Code? Try [Code Market Live for VS Code](https://github.com/CodeMarketModding/CMIDE-VSCode), which uses the same bridge.
+
 ![Editor, Explorer, and reference pane](docs/images/editor.png)
 
 ![Class Map with clickable members](docs/images/class-map.png)
@@ -29,7 +31,7 @@ Screenshots show an example document and reference entries.
 
 ## Getting started
 
-1. Install [CMIDE-Bridge](https://github.com/CodeMarketModding/CMIDE-Bridge) in Code Market.
+1. Install [CMIDE-Bridge](https://github.com/CodeMarketModding/CMIDE-Bridge/releases/latest) and BepInEx 5 in Code Market.
 2. Download the Windows x64 ZIP from [Releases](https://github.com/CodeMarketModding/CMIDE/releases/latest) and extract it to a folder.
 3. Start Code Market, load a world, then run `CodeMarket.IDE.exe` from the extracted folder. Select a script in the Explorer to edit it. Use the game's controls to run scripts.
 
