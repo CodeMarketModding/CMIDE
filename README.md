@@ -30,14 +30,20 @@ Screenshots show an example document and reference entries.
 ## Getting started
 
 1. Install [CMIDE-Bridge](https://github.com/CodeMarketModding/CMIDE-Bridge) in Code Market.
-2. Install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) on Windows.
-3. Clone this repository and build the IDE:
+2. Download the Windows x64 ZIP from [Releases](https://github.com/CodeMarketModding/CMIDE/releases/latest) and extract it to a folder.
+3. Start Code Market, load a world, then run `CodeMarket.IDE.exe` from the extracted folder. Select a script in the Explorer to edit it. Use the game's controls to run scripts.
 
-   ```powershell
-   dotnet build IDE/CodeMarket.IDE.csproj -c Release -o IDE/builds/class-map
-   ```
+The release includes the .NET runtime and does not require a separate .NET installation.
 
-4. Start Code Market, load a world, and run `Run IDE.cmd`. Select a script in the Explorer to edit it. Use the game's controls to run scripts.
+### Build from source
+
+Install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0), clone the repository, and build:
+
+```powershell
+dotnet build IDE/CodeMarket.IDE.csproj -c Release -o IDE/builds/class-map
+```
+
+Run `Run IDE.cmd` from the repository after building.
 
 The language of a game world is chosen in the game. Selecting another language in an open game script is a read-only preview; local drafts can be edited independently. The reference and game completions follow the connected world. Reconnect after switching worlds.
 
