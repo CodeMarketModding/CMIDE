@@ -15,8 +15,10 @@ public sealed class BridgeClient
     public async Task<BridgeResponse> ConnectAsync()
     {
         var response = await SendAsync(new { command="list" });
-        Ensure(response); Session=response.Session; World=response.World; Language=response.Language;
-        if (string.IsNullOrEmpty(Session)) throw new IOException("The bridge did not provide a session ID.");
+        Ensure(response);
+        if (string.IsNullOrEmpty(response.Session)) throw new IOException("The bridge did not provide a session ID.");
+        if (response.Language is not ("csharp" or "java")) throw new IOException($"This world uses '{response.Language}', which CMIDE does not support yet. Open a C# or Java world.");
+        Session=response.Session; World=response.World; Language=response.Language;
         return response;
     }
     public Task<BridgeResponse> ReadAsync(string path) => CheckedAsync(new { command="read",session=Session,world=World,path });

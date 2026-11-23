@@ -49,6 +49,8 @@ Run `Run IDE.cmd` from the repository after building.
 
 The language of a game world is chosen in the game. Selecting another language in an open game script is a read-only preview; local drafts can be edited independently. The reference and game completions follow the connected world. Reconnect after switching worlds.
 
+The updated game also offers other languages; CMIDE currently supports C# and Java worlds only and will explain if the selected world uses another language.
+
 The Class Map is a lightweight outline of the current document; complex or incomplete declarations may not be detected. The bridge also hides folders starting with `_` from the game's script explorer while keeping them accessible in CMIDE.
 
 The IDE and bridge communicate through local files in `%LOCALAPPDATA%\CodeMarketLiveIDE\bridge`. Running programs continue in the background while the IDE has focus; pause the game when needed.

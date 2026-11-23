@@ -83,9 +83,12 @@ public partial class ReferencePane : UserControl
             }
             else if(line.StartsWith(">>>",StringComparison.Ordinal))
             {
-                Flush();string title=line[3..].Trim().TrimStart('!').Trim();var inside=new List<string>();while(++i<lines.Length && lines[i].Trim()!="<<<")inside.Add(lines[i]);
+                Flush();string header=line[3..].Trim().TrimStart('!').Trim();int separator=header.IndexOf(" | ",StringComparison.Ordinal);
+                string title=separator<0 ? header : header[..separator].Trim();string? summary=separator<0 ? null : header[(separator+3)..].Trim();
+                var inside=new List<string>();while(++i<lines.Length && lines[i].Trim()!="<<<")inside.Add(lines[i]);
                 var body=new StackPanel {Margin=new Thickness(8)};RenderBlocks(body,string.Join("\n",inside),russian);
-                parent.Children.Add(new Expander { Header=title,Content=body,Background=Brush("#33404F"),Foreground=Brush("#E5EDF4"),Padding=new Thickness(8),Margin=new Thickness(0,0,0,10) });
+                var heading=new StackPanel();heading.Children.Add(Label(title,"#E5EDF4",13,true));if(!string.IsNullOrEmpty(summary))heading.Children.Add(Paragraph(summary));
+                parent.Children.Add(new Expander { Header=heading,Content=body,Background=Brush("#33404F"),Foreground=Brush("#E5EDF4"),Padding=new Thickness(8),Margin=new Thickness(0,0,0,10) });
             }
             else if(line.StartsWith("@map ",StringComparison.Ordinal)) { Flush();parent.Children.Add(ReferenceMap.Create(line[5..].Trim(),russian)); }
             else if(line.Length==0)Flush();else paragraph.Add(line);
