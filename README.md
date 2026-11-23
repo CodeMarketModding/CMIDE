@@ -12,6 +12,7 @@ Screenshots show an example document and reference entries.
 
 - Live two-way synchronization with the open game project, including protection against conflicting edits.
 - C# and Java syntax highlighting and automatic, upgrade-aware completion. Use **Ctrl+Space** to request suggestions, **Tab** or **Enter** to insert, and **Esc** to dismiss.
+- Automatic brace pairing and indentation when starting a new line inside a block.
 - An Explorer for creating files and folders and renaming or deleting scripts.
 - A searchable reference pane with unlocked in-game guides and API pages. Ctrl-click a supported symbol to open its reference.
 - A Class Map for the current document, with clickable class and member declarations.

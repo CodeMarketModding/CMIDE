@@ -44,6 +44,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         SelectLanguage("csharp");
         Editor.TextArea.Caret.PositionChanged+=EditorSelectionChanged;timer.Tick+=Tick;timer.Start();
+        Editor.TextArea.TextEntering+=EditorTextEntering;
         referenceTimer.Tick+=async (_,_)=>await RefreshReferenceAsync();referenceTimer.Start();
         classMapTimer.Tick+=(_,_)=>RefreshClassMap();
         ClassMap.NavigateRequested+=NavigateClassMap;
@@ -428,13 +429,34 @@ public partial class MainWindow : Window
     {
         if(e.Key==Key.Space && Keyboard.Modifiers.HasFlag(ModifierKeys.Control)) { completionGeneration++;completionRequested=true;forceCompletion=true;completionAt=DateTime.MinValue;e.Handled=true;return; }
         if(e.Key==Key.Escape) { completionGeneration++;completionRequested=false;HideCompletion();e.Handled=true;return; }
-        if(!CompletionPopup.IsOpen)return;
-        if(e.Key is Key.Down or Key.Up)
+        if(CompletionPopup.IsOpen && e.Key is (Key.Down or Key.Up))
         {
             int delta=e.Key==Key.Down ? 1 : -1;CompletionList.SelectedIndex=Math.Clamp(CompletionList.SelectedIndex+delta,0,CompletionList.Items.Count-1);e.Handled=true;
         }
-        else if(e.Key is Key.Enter or Key.Tab) { AcceptCompletion();e.Handled=true; }
-        else if(e.Key is Key.Left or Key.Right or Key.Home or Key.End) HideCompletion();
+        else if(CompletionPopup.IsOpen && e.Key is (Key.Enter or Key.Tab)) { AcceptCompletion();e.Handled=true; }
+        else if(CompletionPopup.IsOpen && e.Key is (Key.Left or Key.Right or Key.Home or Key.End)) HideCompletion();
+        if(!e.Handled && e.Key==Key.Enter && Keyboard.Modifiers==ModifierKeys.None && Editor.IsEnabled && !Editor.IsReadOnly)
+        {
+            var edit=BraceEditing.NewLine(Editor.Text,Editor.CaretOffset,Editor.SelectionLength);
+            if(edit is not null) { ApplyBraceEdit(edit);e.Handled=true; }
+        }
+    }
+    private void EditorTextEntering(object? sender,TextCompositionEventArgs e)
+    {
+        if(!Editor.IsEnabled || Editor.IsReadOnly)return;
+        BraceEditing.Edit? edit=e.Text switch
+        {
+            "{"=>BraceEditing.OpeningBrace(Editor.Text,Editor.SelectionStart,Editor.SelectionLength),
+            "}"=>BraceEditing.ClosingBrace(Editor.Text,Editor.CaretOffset,Editor.SelectionLength),
+            _=>null
+        };
+        if(edit is not null) { ApplyBraceEdit(edit);e.Handled=true; }
+    }
+    private void ApplyBraceEdit(BraceEditing.Edit edit)
+    {
+        if(edit.Length!=0 || edit.Text.Length!=0)Editor.Document.Replace(edit.Offset,edit.Length,edit.Text);
+        Editor.Select(edit.CaretOffset,edit.SelectionLength);
+        if(edit.SelectionLength==0)Editor.CaretOffset=edit.CaretOffset;
     }
     private void EditorMouseDown(object sender,MouseButtonEventArgs e)
     {
